@@ -107,7 +107,7 @@ impl DibHeader {
 }
 
 //----------------------------------------------------------------------- Pixel
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Pixel {
     pub r: u8,
     pub g: u8,
@@ -125,6 +125,20 @@ impl Pixel {
     pub fn as_tuple(&self) -> (i32, i32, i32) {
         (self.r as i32, self.g as i32, self.b as i32)
     }
+    pub fn parse<T: Into<String>>(s: T) -> Pixel {
+        let s = s.into();
+        let parts: Vec<&str> = s.split(',').collect();
+        let r = parts[0].parse::<u8>().unwrap();
+        let g = parts[1].parse::<u8>().unwrap();
+        let b = parts[2].parse::<u8>().unwrap();
+        Pixel {r, g, b}
+    }
+}
+
+#[test]
+fn parse_colors() {
+    assert_eq!(Pixel {r: 0, g: 0, b: 0}, Pixel::parse("0,0,0"));
+    assert_eq!(Pixel {r: 255, g: 255, b: 128}, Pixel::parse("255,255,128"));
 }
 
 //------------------------------------------------------------------------- Bmp

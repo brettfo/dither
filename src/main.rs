@@ -8,11 +8,14 @@ use std::env::args;
 fn main() {
     let filename = args().nth(1).unwrap();
     let output_file = args().nth(2).unwrap();
-    let colors = vec![
-        Pixel{r: 0, g: 0, b: 0},
-        Pixel{r: 255, g: 255, b: 255}
-    ];
-    match args().nth(3) {
+    let colors: Vec<Pixel> =
+        match args().nth(3) {
+            Some(colors) => {
+                colors.split('/').map(Pixel::parse).collect()
+            },
+            _ => panic!("specify colors"),
+        };
+    match args().nth(4) {
         Some(action) => {
             let mut bmp = Bmp::load(&filename).unwrap();
             println!("Loaded bitmap: {:?}", bmp);

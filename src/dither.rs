@@ -235,10 +235,10 @@ fn closest_color(p: &(i32, i32, i32), colors: &Vec<Pixel>) -> Pixel {
 }
 
 fn dist2(a: &(i32, i32, i32), b: &(i32, i32, i32)) -> i32 {
-    let d0 = a.0 - b.0;
-    let d1 = a.1 - b.1;
-    let d2 = a.2 - b.2;
-    d0 * d0 + d1 * d1 + d2 * d2
+    let d0 = a.0 as i64 - b.0 as i64;
+    let d1 = a.1 as i64 - b.1 as i64;
+    let d2 = a.2 as i64 - b.2 as i64;
+    (d0 * d0 + d1 * d1 + d2 * d2) as i32
 }
 
 fn add(a: &(i32, i32, i32), b: &(i32, i32, i32)) -> (i32, i32, i32) {
