@@ -1,29 +1,5 @@
 use bmp::{Bmp, Pixel};
 
-pub fn average(p: &(i32, i32, i32)) -> i32 {
-    (p.0 + p.1 + p.2) / 3
-}
-
-pub fn luminance(p: &(i32, i32, i32)) -> i32 {
-    (p.0 as f32 * 0.3 + p.1 as f32 * 0.59 + p.2 as f32 * 0.11) as i32
-}
-
-pub fn luma(p: &(i32, i32, i32)) -> i32 {
-    (p.0 as f32 * 0.2126 + p.1 as f32 * 0.7152 + p.2 as f32 * 0.0722) as i32
-}
-
-pub fn bt601(p: &(i32, i32, i32)) -> i32 {
-    (p.0 as f32 * 0.299 + p.1 as f32 * 0.587 + p.2 as f32 * 0.114) as i32
-}
-
-pub fn desaturate(p: &(i32, i32, i32)) -> i32 {
-    use std::cmp::{max, min};
-    let &(r, g, b) = p;
-    let mx = max(max(r, g), b);
-    let mn = min(min(r, g), b);
-    (mx + mn) / 2
-}
-
 struct Matrix {
     values: (((), (), (), i32, i32),
              (i32, i32, i32, i32, i32),
@@ -31,126 +7,126 @@ struct Matrix {
     divisor: i32,
 }
 
-pub fn black_matrix_dither<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn closest_matrix_dither(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     matrix_dither(
         bmp,
         &Matrix { values: (((), (), (), 0, 0),
                            ( 0,  0,  0, 0, 0),
                            ( 0,  0,  0, 0, 0)),
                   divisor: 1 },
-        grayscale);
+        colors);
 }
 
-pub fn diffuse_matrix_dither<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn diffuse_matrix_dither(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     matrix_dither(
         bmp,
         &Matrix { values: (((), (), (), 1, 0),
                            ( 0,  0,  0, 0, 0),
                            ( 0,  0,  0, 0, 0)),
                   divisor: 1 },
-        grayscale);
+        colors);
 }
 
-pub fn floyd_matrix_dither<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn floyd_matrix_dither(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     matrix_dither(
         bmp,
         &Matrix { values: (((), (), (), 7, 0),
                            ( 0,  3,  5, 1, 0),
                            ( 0,  0,  0, 0, 0)),
                   divisor: 16 },
-        grayscale);
+        colors);
 }
 
-pub fn false_floyd_matrix_dither<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn false_floyd_matrix_dither(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     matrix_dither(
         bmp,
         &Matrix { values: (((), (), (), 3, 0),
                            ( 0,  0,  3, 2, 0),
                            ( 0,  0,  0, 0, 0)),
                   divisor: 8 },
-        grayscale);
+        colors);
 }
 
-pub fn jjn_matrix_dither<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn jjn_matrix_dither(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     matrix_dither(
         bmp,
         &Matrix { values: (((), (), (), 7, 5),
                            ( 3,  5,  7, 5, 3),
                            ( 1,  3,  5, 3, 1)),
                   divisor: 48 },
-        grayscale);
+        colors);
 }
 
-pub fn stucki_matrix_dither<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn stucki_matrix_dither(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     matrix_dither(
         bmp,
         &Matrix { values: (((), (), (), 8, 4),
                            ( 2,  4,  8, 4, 2),
                            ( 1,  2,  4, 2, 1)),
                   divisor: 42 },
-        grayscale);
+        colors);
 }
 
-pub fn atkinson_matrix_dither<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn atkinson_matrix_dither(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     matrix_dither(
         bmp,
         &Matrix { values: (((), (), (), 1, 1),
                            ( 0,  1,  1, 1, 0),
                            ( 0,  0,  1, 0, 0)),
                   divisor: 8 },
-        grayscale);
+        colors);
 }
 
-pub fn burkes_matrix_dither<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn burkes_matrix_dither(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     matrix_dither(
         bmp,
         &Matrix { values: (((), (), (), 8, 4),
                            ( 2,  4,  8, 4, 2),
                            ( 0,  0,  0, 0, 0)),
                   divisor: 32 },
-        grayscale);
+        colors);
 }
 
-pub fn sierra_matrix_dither<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn sierra_matrix_dither(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     matrix_dither(
         bmp,
         &Matrix { values: (((), (), (), 5, 3),
                            ( 2,  4,  5, 4, 2),
                            ( 0,  2,  3, 2, 0)),
                   divisor: 32 },
-        grayscale);
+        colors);
 }
 
-pub fn sierra2_matrix_dither<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn sierra2_matrix_dither(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     matrix_dither(
         bmp,
         &Matrix { values: (((), (), (), 4, 3),
                            ( 1,  2,  3, 2, 1),
                            ( 0,  0,  0, 0, 0)),
                   divisor: 16 },
-        grayscale);
+        colors);
 }
 
-pub fn sierra_lite_matrix_dither<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn sierra_lite_matrix_dither(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     matrix_dither(
         bmp,
         &Matrix { values: (((), (), (), 2, 0),
                            ( 0,  1,  1, 0, 0),
                            ( 0,  0,  0, 0, 0)),
                   divisor: 4 },
-        grayscale);
+        colors);
 }
 
-pub fn bayer_4x4<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn bayer_4x4(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     let mut matrix = Vec::with_capacity(4);
     matrix.push(vec![1, 9, 3, 11]);
     matrix.push(vec![13, 5, 15, 7]);
     matrix.push(vec![4, 12, 2, 10]);
     matrix.push(vec![16, 8, 14, 6]);
-    ordered_dither(bmp, grayscale, &matrix);
+    ordered_dither(bmp, &matrix, colors);
 }
 
-pub fn bayer_8x8<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
+pub fn bayer_8x8(bmp: &mut Bmp, colors: &Vec<Pixel>) {
     let mut matrix = Vec::with_capacity(8);
     matrix.push(vec![1, 49, 13, 61, 4, 52, 16, 64]);
     matrix.push(vec![33, 17, 45, 29, 36, 20, 48, 32]);
@@ -160,11 +136,10 @@ pub fn bayer_8x8<F>(bmp: &mut Bmp, grayscale: &F) where F: Fn(&(i32, i32, i32)) 
     matrix.push(vec![35, 19, 47, 31, 34, 18, 46, 30]);
     matrix.push(vec![11, 59, 7, 55, 10, 58, 6, 54]);
     matrix.push(vec![43, 27, 39, 23, 42, 26, 38, 22]);
-    ordered_dither(bmp, grayscale, &matrix);
+    ordered_dither(bmp, &matrix, colors);
 }
 
-fn ordered_dither<F>(bmp: &mut Bmp, grayscale: &F, matrix: &Vec<Vec<i32>>) where F: Fn(&(i32, i32, i32)) -> i32 {
-    let threshold = 127;
+fn ordered_dither(bmp: &mut Bmp, matrix: &Vec<Vec<i32>>, colors: &Vec<Pixel>) {
     let size = matrix.len();
     let factor = size as i32 * size as i32 + 1;
     for y in 0..bmp.height() as usize {
@@ -173,14 +148,13 @@ fn ordered_dither<F>(bmp: &mut Bmp, grayscale: &F, matrix: &Vec<Vec<i32>>) where
             let pt = p.as_tuple();
             let v = matrix[x % size][y % size];
             let pv = mul(&div(&mul(&pt, factor), 255), v);
-            let g = grayscale(&pv);
-            bmp.pixels[x][y] = if g < threshold { Pixel::black() } else { Pixel::white() };
+            let new_val = closest_color(&pv, colors);
+            bmp.pixels[x][y] = new_val;
         }
     }
 }
 
-fn matrix_dither<F>(bmp: &mut Bmp, matrix: &Matrix, grayscale: &F) where F: Fn(&(i32, i32, i32)) -> i32 {
-    let threshold = 128;
+fn matrix_dither(bmp: &mut Bmp, matrix: &Matrix, colors: &Vec<Pixel>) {
     let mut err_next_1;
     let mut err_next_2;
     let mut err_cur_row = vec![(0, 0, 0); bmp.width() as usize];
@@ -203,20 +177,15 @@ fn matrix_dither<F>(bmp: &mut Bmp, matrix: &Matrix, grayscale: &F) where F: Fn(&
         } // now err_next_row_2 is empty and is correct
 
         for x in 0..bmp.width() as usize {
-            let p = bmp.pixels[x][y];
+            let pixel = bmp.pixels[x][y].as_tuple();
             let adjusted = (
-                p.r as i32 + err_next_1.0 + err_cur_row[x].0,
-                p.g as i32 + err_next_1.1 + err_cur_row[x].1,
-                p.b as i32 + err_next_1.2 + err_cur_row[x].2,
+                pixel.0 + err_next_1.0 + err_cur_row[x].0,
+                pixel.1 + err_next_1.1 + err_cur_row[x].1,
+                pixel.2 + err_next_1.2 + err_cur_row[x].2,
             );
 
-            let gray = grayscale(&adjusted);
-            let (new_val, pixel_error) = if gray < threshold {
-                (Pixel::black(), adjusted)
-            }
-            else {
-                (Pixel::white(), (adjusted.0 - 255, adjusted.1 - 255, adjusted.2 - 255))
-            };
+            let new_val = closest_color(&adjusted, colors);
+            let pixel_error = sub(&adjusted, &new_val.as_tuple());
 
             let individual_error = (pixel_error.0 / matrix.divisor, pixel_error.1 / matrix.divisor, pixel_error.2 / matrix.divisor);
             err_next_1 = add(&mul(&individual_error, d), &err_next_2);
@@ -251,8 +220,33 @@ fn matrix_dither<F>(bmp: &mut Bmp, matrix: &Matrix, grayscale: &F) where F: Fn(&
     }
 }
 
+fn closest_color(p: &(i32, i32, i32), colors: &Vec<Pixel>) -> Pixel {
+    let mut closest = colors[0].clone();
+    let mut dist = dist2(p, &colors[0].as_tuple());
+    for i in 1..colors.len() {
+        let d = dist2(p, &colors[i].as_tuple());
+        if d < dist {
+            dist = d;
+            closest = colors[i].clone();
+        }
+    }
+
+    closest
+}
+
+fn dist2(a: &(i32, i32, i32), b: &(i32, i32, i32)) -> i32 {
+    let d0 = a.0 - b.0;
+    let d1 = a.1 - b.1;
+    let d2 = a.2 - b.2;
+    d0 * d0 + d1 * d1 + d2 * d2
+}
+
 fn add(a: &(i32, i32, i32), b: &(i32, i32, i32)) -> (i32, i32, i32) {
     (a.0 + b.0, a.1 + b.1, a.2 + b.2)
+}
+
+fn sub(a: &(i32, i32, i32), b: &(i32, i32, i32)) -> (i32, i32, i32) {
+    (a.0 - b.0, a.1 - b.1, a.2 - b.2)
 }
 
 fn mul(t: &(i32, i32, i32), v: i32) -> (i32, i32, i32) {

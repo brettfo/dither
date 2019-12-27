@@ -1,19 +1,23 @@
 mod bmp;
 mod dither;
 
-use bmp::Bmp;
+use bmp::{Bmp, Pixel};
 use dither::*;
 use std::env::args;
 
 fn main() {
     let filename = args().nth(1).unwrap();
     let output_file = args().nth(2).unwrap();
-    match (args().nth(3), args().nth(4)) {
-        (Some(action), Some(grayscale)) => {
+    let colors = vec![
+        Pixel{r: 0, g: 0, b: 0},
+        Pixel{r: 255, g: 255, b: 255}
+    ];
+    match args().nth(3) {
+        Some(action) => {
             let mut bmp = Bmp::load(&filename).unwrap();
             println!("Loaded bitmap: {:?}", bmp);
             let delegate = match action.as_str() {
-                "black" => black_matrix_dither,
+                "closest" => closest_matrix_dither,
                 "diffuse" => diffuse_matrix_dither,
                 "floyd" => floyd_matrix_dither,
                 "ffloyd" => false_floyd_matrix_dither,
@@ -28,17 +32,9 @@ fn main() {
                 "bayer8" => bayer_8x8,
                 a => panic!("unrecognized action '{}'", a),
             };
-            let grayscale = match grayscale.as_str() {
-                "average" => average,
-                "luminance" => luminance,
-                "luma" => luma,
-                "bt601" => bt601,
-                "desaturate" => desaturate,
-                g => panic!("unrecognized grayscale function '{}'", g),
-            };
-            delegate(&mut bmp, &grayscale);
+            delegate(&mut bmp, &colors);
             bmp.save(&output_file).unwrap();
         },
-        _ => panic!("specify action and grayscale conversion"),
+        _ => panic!("specify action"),
     }
 }
