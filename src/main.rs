@@ -10,9 +10,30 @@ fn main() {
     let output_file = args().nth(2).unwrap();
     let colors: Vec<Pixel> =
         match args().nth(3) {
-            Some(colors) => {
-                colors.split('/').map(Pixel::parse).collect()
-            },
+            Some(value) => {
+                match &*value {
+                    "bw" => vec![
+                        Pixel::black(),
+                        Pixel::white(),
+                    ],
+                    "rgb" => vec![
+                        Pixel::red(),
+                        Pixel::green(),
+                        Pixel::blue(),
+                    ],
+                    "basic" => vec![
+                        Pixel::red(),
+                        Pixel::green(),
+                        Pixel::blue(),
+                        Pixel::cyan(),
+                        Pixel::magenta(),
+                        Pixel::yellow(),
+                        Pixel::white(),
+                        Pixel::black(),
+                    ],
+                    _ => value.split('/').map(Pixel::parse).collect(),
+                }
+            }
             _ => panic!("specify colors"),
         };
     match args().nth(4) {

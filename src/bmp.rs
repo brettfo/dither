@@ -122,6 +122,62 @@ impl Pixel {
             b: 0u8,
         }
     }
+    pub fn red() -> Pixel {
+        Pixel {
+            r: 255,
+            g: 0,
+            b: 0,
+        }
+    }
+    pub fn green() -> Pixel {
+        Pixel {
+            r: 0,
+            g: 255,
+            b: 0,
+        }
+    }
+    pub fn blue() -> Pixel {
+        Pixel {
+            r: 0,
+            g: 0,
+            b: 255,
+        }
+    }
+    pub fn cyan() -> Pixel {
+        Pixel {
+            r: 0,
+            g: 255,
+            b: 255,
+        }
+    }
+    pub fn magenta() -> Pixel {
+        Pixel {
+            r: 255,
+            g: 0,
+            b: 255,
+        }
+    }
+    pub fn yellow() -> Pixel {
+        Pixel {
+            r: 255,
+            g: 255,
+            b: 0,
+        }
+    }
+    pub fn white() -> Pixel {
+        Pixel {
+            r: 255,
+            g: 255,
+            b: 255,
+        }
+    }
+    pub fn black() -> Pixel {
+        Pixel {
+            r: 0,
+            g: 0,
+            b: 0,
+        }
+    }
     pub fn as_tuple(&self) -> (i32, i32, i32) {
         (self.r as i32, self.g as i32, self.b as i32)
     }
