@@ -32,21 +32,21 @@ impl BmpHeader {
     // }
     pub fn load<R>(file: &mut R) -> IoResult<BmpHeader> where R: ::std::io::Read {
         Ok(BmpHeader {
-            _b: try!(file.read_u8()) as char,
-            _m: try!(file.read_u8()) as char,
-            _file_size: try!(file.read_u32::<LittleEndian>()),
-            _reserved_1: try!(file.read_u16::<LittleEndian>()),
-            _reserved_2: try!(file.read_u16::<LittleEndian>()),
-            image_data_offset: try!(file.read_u32::<LittleEndian>()),
+            _b: file.read_u8()? as char,
+            _m: file.read_u8()? as char,
+            _file_size: file.read_u32::<LittleEndian>()?,
+            _reserved_1: file.read_u16::<LittleEndian>()?,
+            _reserved_2: file.read_u16::<LittleEndian>()?,
+            image_data_offset: file.read_u32::<LittleEndian>()?,
         })
     }
     pub fn save<W>(&self, file: &mut W) -> IoResult<()> where W: ::std::io::Write {
-        try!(file.write_u8(self._b as u8));
-        try!(file.write_u8(self._m as u8));
-        try!(file.write_u32::<LittleEndian>(self._file_size));
-        try!(file.write_u16::<LittleEndian>(self._reserved_1));
-        try!(file.write_u16::<LittleEndian>(self._reserved_2));
-        try!(file.write_u32::<LittleEndian>(self.image_data_offset));
+        file.write_u8(self._b as u8)?;
+        file.write_u8(self._m as u8)?;
+        file.write_u32::<LittleEndian>(self._file_size)?;
+        file.write_u16::<LittleEndian>(self._reserved_1)?;
+        file.write_u16::<LittleEndian>(self._reserved_2)?;
+        file.write_u32::<LittleEndian>(self.image_data_offset)?;
         Ok(())
     }
 }
@@ -68,17 +68,17 @@ impl DibHeader {
     //     }
     // }
     pub fn load<R>(file: &mut R) -> IoResult<DibHeader> where R: ::std::io::Read {
-        let _header_size = try!(file.read_u32::<LittleEndian>());
-        let width = try!(file.read_u32::<LittleEndian>());
-        let height = try!(file.read_u32::<LittleEndian>());
-        let _color_planes = try!(file.read_u16::<LittleEndian>());
-        let bpp = try!(file.read_u16::<LittleEndian>());
-        let _compression = try!(file.read_u32::<LittleEndian>());
-        let _image_size = try!(file.read_u32::<LittleEndian>());
-        let _h_ppm = try!(file.read_i32::<LittleEndian>());
-        let _v_ppm = try!(file.read_i32::<LittleEndian>());
-        let _color_palette_size = try!(file.read_u32::<LittleEndian>());
-        let _important_colors = try!(file.read_u32::<LittleEndian>());
+        let _header_size = file.read_u32::<LittleEndian>()?;
+        let width = file.read_u32::<LittleEndian>()?;
+        let height = file.read_u32::<LittleEndian>()?;
+        let _color_planes = file.read_u16::<LittleEndian>()?;
+        let bpp = file.read_u16::<LittleEndian>()?;
+        let _compression = file.read_u32::<LittleEndian>()?;
+        let _image_size = file.read_u32::<LittleEndian>()?;
+        let _h_ppm = file.read_i32::<LittleEndian>()?;
+        let _v_ppm = file.read_i32::<LittleEndian>()?;
+        let _color_palette_size = file.read_u32::<LittleEndian>()?;
+        let _important_colors = file.read_u32::<LittleEndian>()?;
 
         if bpp != 24 {
             panic!("bits per pixel was {} instead of 24", bpp);
@@ -91,17 +91,17 @@ impl DibHeader {
         })
     }
     pub fn save<W>(&self, file: &mut W) -> IoResult<()> where W: ::std::io::Write {
-        try!(file.write_u32::<LittleEndian>(40)); // always write the 40 byte version
-        try!(file.write_u32::<LittleEndian>(self.width));
-        try!(file.write_u32::<LittleEndian>(self.height));
-        try!(file.write_u16::<LittleEndian>(1)); // color planes
-        try!(file.write_u16::<LittleEndian>(24)); // 24 bpp
-        try!(file.write_u32::<LittleEndian>(0)); // compression method
-        try!(file.write_u32::<LittleEndian>(self.width * self.height * 3)); // image size (3 bytes per pixel)
-        try!(file.write_i32::<LittleEndian>(0)); // horizontal ppm
-        try!(file.write_i32::<LittleEndian>(0)); // vertical ppm
-        try!(file.write_u32::<LittleEndian>(0)); // color palette size
-        try!(file.write_u32::<LittleEndian>(0)); // important colors
+        file.write_u32::<LittleEndian>(40)?; // always write the 40 byte version
+        file.write_u32::<LittleEndian>(self.width)?;
+        file.write_u32::<LittleEndian>(self.height)?;
+        file.write_u16::<LittleEndian>(1)?; // color planes
+        file.write_u16::<LittleEndian>(24)?; // 24 bpp
+        file.write_u32::<LittleEndian>(0)?; // compression method
+        file.write_u32::<LittleEndian>(self.width * self.height * 3)?; // image size (3 bytes per pixel)
+        file.write_i32::<LittleEndian>(0)?; // horizontal ppm
+        file.write_i32::<LittleEndian>(0)?; // vertical ppm
+        file.write_u32::<LittleEndian>(0)?; // color palette size
+        file.write_u32::<LittleEndian>(0)?; // important colors
         Ok(())
     }
 }
@@ -173,20 +173,20 @@ impl Bmp {
     pub fn load(path_str: &str) -> IoResult<Bmp> {
         // Into<Path>
         let path = Path::new(&path_str);
-        let file = try!(File::open(&path));
+        let file = File::open(&path)?;
         let mut file = ::std::io::BufReader::new(file);
-        let bh = try!(BmpHeader::load(&mut file));
-        let dh = try!(DibHeader::load(&mut file));
+        let bh = BmpHeader::load(&mut file)?;
+        let dh = DibHeader::load(&mut file)?;
 
         let mut pixels = Bmp::create_pixels(dh.width as usize, dh.height as usize);
 
-        try!(file.seek(SeekFrom::Start(bh.image_data_offset as u64)));
+        file.seek(SeekFrom::Start(bh.image_data_offset as u64))?;
         for y in (0..dh.height as usize).rev()  { // BMPs are stored bottom up
             for x in 0..dh.width as usize {
                 pixels[x][y] = Pixel {
-                    r: try!(file.read_u8()),
-                    g: try!(file.read_u8()),
-                    b: try!(file.read_u8()),
+                    r: file.read_u8()?,
+                    g: file.read_u8()?,
+                    b: file.read_u8()?,
                 };
             }
         }
@@ -202,14 +202,14 @@ impl Bmp {
         match File::create(&path) {
             Ok(file) => {
                 let mut file = ::std::io::BufWriter::new(file);
-                try!(self._bmp_header.save(&mut file));
-                try!(self.dib_header.save(&mut file));
+                self._bmp_header.save(&mut file)?;
+                self.dib_header.save(&mut file)?;
                 for y in (0..self.dib_header.height).rev() { // BMPs are stored bottom up
                     for x in 0..self.dib_header.width {
                         let pixel = &self.pixels[x as usize][y as usize];
-                        try!(file.write_u8(pixel.r));
-                        try!(file.write_u8(pixel.g));
-                        try!(file.write_u8(pixel.b));
+                        file.write_u8(pixel.r)?;
+                        file.write_u8(pixel.g)?;
+                        file.write_u8(pixel.b)?;
                     }
                 }
 
