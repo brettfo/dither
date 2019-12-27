@@ -5,3 +5,4 @@ authors = ["brettfo"]
 
 [dependencies]
 byteorder = "0.5.3"
+k_means = { git = "https://github.com/brettfo/k-means" }

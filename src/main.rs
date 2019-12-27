@@ -1,3 +1,5 @@
+extern crate k_means;
+
 mod bmp;
 mod dither;
 
@@ -12,6 +14,31 @@ fn main() {
         match args().nth(3) {
             Some(value) => {
                 match &*value {
+                    "auto" => {
+                        let mut values = vec![];
+                        let bmp = Bmp::load(&filename).unwrap();
+                        for y in 0..bmp.height() as usize {
+                            for x in 0..bmp.width() as usize {
+                                let p = bmp.pixels[x][y];
+                                let p = vec![
+                                    p.r as f32,
+                                    p.g as f32,
+                                    p.b as f32,
+                                ];
+                                values.push(p);
+                            }
+                        }
+                        let groups = 16;
+                        let iterations = 10;
+                        let auto: Vec<Pixel> = k_means::k_means(&values, groups, 3, iterations, 0.0, 255.0).iter()
+                            .map(|v| Pixel {r: v[0] as u8, g: v[1] as u8, b: v[2] as u8 })
+                            .collect();
+                        println!("Auto colors:");
+                        for p in &auto {
+                            println!("  {:?}", p);
+                        }
+                        auto
+                    },
                     "bw" => vec![
                         Pixel::black(),
                         Pixel::white(),
