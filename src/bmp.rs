@@ -260,6 +260,7 @@ impl Bmp {
                 let mut file = ::std::io::BufWriter::new(file);
                 self._bmp_header.save(&mut file)?;
                 self.dib_header.save(&mut file)?;
+                file.seek(SeekFrom::Start(self._bmp_header.image_data_offset as u64))?;
                 for y in (0..self.dib_header.height).rev() { // BMPs are stored bottom up
                     for x in 0..self.dib_header.width {
                         let pixel = &self.pixels[x as usize][y as usize];
